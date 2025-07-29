@@ -28,9 +28,13 @@ def check_collision(pipes):
         return False # Va chạm với sàn/trần, game kết thúc
     
     return True # Nếu không có va chạm, game tiếp tục
-
-# Đmm toàn mấy cái hàm tạo vật thể cho game ý mà
-
+def rotate_bird(bird1):
+    new_bird = pygame.transform.rotozoom(bird1, -bird_movement*3, 1)
+    return new_bird 
+def bird_animation(): 
+    new_bird = bird_list[bird_index]
+    new_bird_rect = new_bird.get_rect(center = (100, bird_rect.centery))
+    return new_bird, new_bird_rect
 pygame.init()
 screen = pygame.display.set_mode((432, 768))
 clock = pygame.time.Clock()
@@ -48,10 +52,20 @@ floor = pygame.transform.scale2x(floor)
 floor_x_pos = 0
 # floor ý mà
 
-bird = pygame.image.load('img/yellowbird-midflap.png').convert()
-bird = pygame.transform.scale2x(bird)
-bird_rect = bird.get_rect(center = (100,384))
 #bird, hay còn gọi là chim
+bird_down = pygame.transform.scale2x(pygame.image.load('img/yellowbird-downflap.png').convert_alpha())
+bird_mid = pygame.transform.scale2x(pygame.image.load('img/yellowbird-midflap.png').convert_alpha())
+bird_up = pygame.transform.scale2x(pygame.image.load('img/yellowbird-upflap.png').convert_alpha())
+bird_list = [bird_down, bird_mid, bird_up] #0 1 2
+bird_index = 2
+bird = bird_list[bird_index]    
+# bird = pygame.image.load('img/yellowbird-midflap.png').convert_alpha()
+# bird = pygame.transform.scale2x(bird)
+bird_rect = bird.get_rect(center = (100,384))
+
+birdflap = pygame.USEREVENT + 1
+pygame.time.set_timer(birdflap, 200)
+
 
 pipe_surface = pygame.image.load('img/pipe-green.png').convert()
 pipe_surface = pygame.transform.scale2x(pipe_surface)
@@ -82,6 +96,12 @@ while True:
 
         if event.type == spawnpipe and game_active:
             pipe_list.extend(create_pipe())
+        if event.type == birdflap:
+            if bird_index < 2:
+                bird_index += 1
+            else:
+                bird_index = 0
+                bird, bird_rect = bird_animation()[bird_index] 
 
     screen.blit(bg, (0, 0))
 
@@ -89,8 +109,9 @@ while True:
         # --- Logic khi game đang chạy ---
         # Vật lý chim
         bird_movement += gravity
+        rotated_bird = rotate_bird(bird1=bird)
         bird_rect.centery += bird_movement
-        screen.blit(bird, bird_rect)
+        screen.blit(rotated_bird, bird_rect)
         game_active = check_collision(pipe_list) # Cập nhật trạng thái game
 
         # Vật lý ống cống
