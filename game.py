@@ -101,7 +101,7 @@ while True:
                 bird_index += 1
             else:
                 bird_index = 0
-                bird, bird_rect = bird_animation()[bird_index] 
+                bird, bird_rect = bird_animation()
 
     screen.blit(bg, (0, 0))
 
